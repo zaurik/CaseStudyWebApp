@@ -27,12 +27,10 @@ namespace CaseStudyWebApp.Web.Account
         {
             if (IsValid)
             {
-                // Validate the user password
-                var manager = Context.GetOwinContext().GetUserManager<ApplicationUserManager>();
-                ApplicationUser user = manager.Find(UserName.Text, Password.Text);
-                if (user != null)
+                bool isLogInSuccessful = LogInAsUser(UserName.Text, Password.Text);
+
+                if (isLogInSuccessful)
                 {
-                    IdentityHelper.SignIn(manager, user, RememberMe.Checked);
                     IdentityHelper.RedirectToReturnUrl(Request.QueryString["ReturnUrl"], Response);
                 }
                 else
@@ -41,6 +39,27 @@ namespace CaseStudyWebApp.Web.Account
                     ErrorMessage.Visible = true;
                 }
             }
+        }
+
+        public bool LogInAsUser(string username, string password)
+        {
+            bool isSuccessful = false;
+
+            // Validate the user password
+            var manager = Context.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            ApplicationUser user = manager.Find(username, password);
+
+            if (user != null)
+            {
+                IdentityHelper.SignIn(manager, user, RememberMe.Checked);
+                isSuccessful = true;
+            }
+            else
+            {
+                isSuccessful = false;
+            }
+
+            return isSuccessful;
         }
     }
 }
